@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <style>*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body{
+    display: grid;
+    grid-template-columns: 80%;
+    justify-content: center;
+    margin-top: 3rem;
+    background: #828489;
+}
+
+.addItems-container{
+    background: #4d7ea8;
+}
+
+.addItems-container, .displayItems-container{
+    margin: 1rem 0;
+    padding: 2rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    border: 2px solid #272932;
+    box-shadow: 0 5px 10px #272932;
+}
+
+.addItems-title, .displayItems-title{
+    text-transform: capitalize;
+}
+
+.addItems-title{
+    color: #b6c2d9;
+}
+
+.addItems-action, .displayItems-action{
+    border: 2px solid #272932;
+    padding: 0.5rem 0;
+    text-transform: capitalize;
+    border-radius: 0.5rem;
+    display: none;
+}
+
+.addItems-input{
+    background: transparent;
+    border: none;
+    border-bottom: 5px solid #9e90a2;
+    width: 100%;
+    font-size: 2rem;
+    padding: 0.5rem;
+    color: #9e90a2;
+    outline: none;
+    text-transform: uppercase;
+}
+
+.addItems-submit,.displayItems-clear{
+    display: block;
+    width: 90%;
+    margin: 2rem auto 0 auto;
+    font-size: 1.5rem;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    text-transform: capitalize;
+    outline: none;
+}
+
+.addItems-submit{
+    color: #b6c2d9;
+    background: transparent;
+    border: 3px solid #b6c2d9;
+    transition: all 2s ease;
+}
+
+.addItems-submit:hover{
+    background: #b6c2d9;
+    color: #272932;
+}
+
+.displayItems-container{
+    background: #b6c2d9;
+}
+
+.displayItems-title{
+    color: #4d7ea8;
+    margin-bottom: 0.25rem;
+}
+
+.grocery-item{
+    display:grid;
+    grid-template-columns: 4fr 1fr;
+    align-items: center;
+    border-radius: 0.5rem;
+    padding: 0.5rem;
+    transition: all 1s ease-in-out;
+    margin: 0.5rem 0;
+}
+
+.grocery-item:hover{
+    background: #828489;
+}
+
+.grocery-item__title{
+    text-align: left;
+    margin-left: 0.5rem;
+    font-size: 1.2rem;
+    text-transform: capitalize;
+    color: #272932;
+}
+
+.grocery-item__link{
+    color: red;
+    transition: all 2s linear;   
+}
+
+.grocery-item:hover .grocery-item__link{
+    transform: scale(2);
+}
+
+.displayItems-clear{
+    color: #4d7ea8;
+    background: transparent;
+    border: 3px solid #4d7ea8;
+    transition: all 2s ease;
+}
+
+.displayItems-clear{
+    background: #4d7ea8;
+    color:#272932;
+    outline:none;
+    background: transparent;
+}
+/*Add utility action classes */
+.alert{
+    color: red;
+    border-color: red;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.success{
+    color:rgb(32, 184, 32);
+    border-color: rgb(32, 184, 32);
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+@media screen and (min-width: 768px){
+    body{
+        grid-template-columns: 50%;
+    }
+}</style>
+    <script src="https://kit.fontawesome.com/0615dc2069.js" crossorigin="anonymous"></script>
+    <title>Grocery List</title>
+</head>
+<body>
+    <!-- add items -->
+    <div class="addItems-container">
+        <h4 class="addItems-action">display action</h4>
+        <h2 class="addItems-title">add grocery items</h2>
+        <form action="">
+            <input type="text" name="" id="" class="addItems-input">
+            <button type="submit" class="addItems-submit">submit here</button>
+        </form>
+    </div>
+    <!-- display items-->
+    <div class="displayItems-container">
+        <h4 class="displayItems-action">display action</h4>
+        <h2 class="displayItems-title">grocery items</h2>
+        <div class="grocery-list">
+            <!--grocery item-->
+            <!-- <div class="grocery-item">
+                <h4 class="grocery-item__title">item</h4>
+                <a href="#" class="grocery-item__link">
+                    <i class="far fa-trash-alt"></i>
+                </a> -->
+            </div>
+            <!-- end grocery item -->
+            <button type="submit" class="displayItems-clear">clear items</button>
+        </div>
+        
+    </div>
+    <script>
+	//Selection items from the DOM
+//Add items container
+const addItemsAction = document.querySelector('.addItems-action');
+const input = document.querySelector('.addItems-input');
+const submit = document.querySelector('.addItems-submit');
+
+//Display items container
+const list = document.querySelector('.grocery-list');
+const displayItemsAction = document.querySelector('.displayItems-action');
+const clear = document.querySelector('.displayItems-clear');
+
+//Add event listeners
+//Submit listener
+submit.addEventListener('click', addItem);
+//Check for local storage
+document.addEventListener('DOMContentLoaded', displayStorage);
+//Clear list
+clear.addEventListener('click', removeItems);
+//Listen to list to delete individual items
+list.addEventListener('click', removeSingleItem);
+
+
+//functions
+function addItem(event){
+    event.preventDefault();
+    let value = input.value;
+    if (value === ''){
+        showAction(addItemsAction, 'Please add grocery item', false);
+    } else {
+        showAction(addItemsAction, `${value} added to the list`, true);
+        createItem(value);
+        updateStorage(value);
+    }
+}
+
+function showAction(element, text, value){
+    if (value === true){
+        element.classList.add('success');
+        element.innerText = text;
+        input.value = '';
+        setTimeout(function(){
+            element.classList.remove('success');
+        }, 3000)
+    } else {
+        element.classList.add('alert');
+        element.innerText = text;
+        input.value = '';
+        setTimeout(function(){
+            element.classList.remove('alert');
+        }, 3000)
+    }
+}
+
+// create item
+function createItem(value){
+    let parent = document.createElement('div');
+        parent.classList.add('grocery-item');
+
+    // let title = document.createElement('h4');
+    //     title.classList.add('grocery-item__title');
+
+    parent.innerHTML = `<h4 class="grocery-item__title">${value}</h4>
+    <a href="#" class="grocery-item__link">
+        <i class="far fa-trash-alt"></i>
+    </a>`
+
+    list.appendChild(parent);
+}
+
+//update storage
+function updateStorage(value){
+    let groceryList;
+    
+    groceryList = localStorage.getItem('groceryList') ? JSON.parse(localStorage.getItem('groceryList')) : [];
+
+    groceryList.push(value);
+    localStorage.setItem('groceryList', JSON.stringify(groceryList));
+}
+
+//display items in local storage
+function displayStorage(){
+    let exists = localStorage.getItem('groceryList');
+    
+    if(exists){
+        let storageItems = JSON.parse(localStorage.getItem('groceryList'));
+        storageItems.forEach(function(element){
+            createItem(element);
+        })
+    }
+}
+
+//remove all items
+function removeItems(){
+    //delete from local storage
+    localStorage.removeItem('groceryList');
+    let items = document.querySelectorAll('.grocery-item');
+    
+    if(items.length > 0){
+        //remove each item from the list
+        showAction(displayItemsAction, 'All items deleted', false);
+        items.forEach(function(element){
+            list.removeChild(element);
+        })
+    } else {
+        showAction(displayItemsAction, 'No more items to delete', false);
+    }
+}
+
+//remove single item
+
+function removeSingleItem(event){
+    event.preventDefault();
+    
+    let link = event.target.parentElement;
+    if(link.classList.contains('grocery-item__link')){
+        let text = link.previousElementSibling.innerHTML;
+        let groceryItem = event.target.parentElement.parentElement;
+        //remove from list
+
+        list.removeChild(groceryItem);
+        showAction(displayItemsAction,`${text} removed from the list`, true);
+
+        //remove from local storage
+        editStorage(text);
+
+    }
+}
+
+function editStorage(item){
+    let groceryItems = JSON.parse(localStorage.getItem('groceryList'));
+    let index = groceryItems.indexOf(item);
+    
+    groceryItems.splice(index, 1);
+    //first delete existing list
+    localStorage.removeItem('groceryList');
+    //add new updated/edited list
+    localStorage.setItem('groceryList', JSON.stringify(groceryItems));
+
+}
+	</script>
+</body>
+</html>
